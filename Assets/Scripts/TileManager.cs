@@ -1,6 +1,16 @@
-﻿using UnityEngine;
+﻿//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+//!
+//!	IRFAN FAHMI RAMADHAN
+//!
+//!	2016/09/11
+//!	
+//!	TileManager
+//!
+//! Copyright ©2016 IrGame All Right Reserved
+//!
+//_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/_/
+using UnityEngine;
 using UnityEngine.SceneManagement;
-//using Assets.Helpers;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,42 +21,18 @@ public class TileManager : MonoBehaviour
     private Settings _settings;
 
     [SerializeField]
-    private Transform target;
+    private Transform _target;
 
     [SerializeField]
-    private Texture2D texture;
-    private GameObject tile;
+    private Texture2D _texture;
+    private GameObject _tile;
 
     [SerializeField]
-    private GameObject service;
-
-    //オブジェクトの宣言
-    //public List<Object> objs = new List<Object>();
-    public Transform objects;
-    public Vector3 objPosition;
-
-    //public List<Objects> objs = new List<Objects>();
-
-    public ObjectManager objManager;
+    private GameObject _service;
 
     private float oldLat = 0f, oldLon = 0f;
     private float lat = 0f, lon = 0f;
 
-    public float getLat
-    {
-        get
-        {
-            return lat;
-        }
-    }
-
-    public float getLon
-    {
-        get
-        {
-            return lon;
-        }
-    }
     void Awake()
     {
         //これ、本当はいらない！
@@ -55,7 +41,7 @@ public class TileManager : MonoBehaviour
 
     IEnumerator Start()
     {
-        service = GameObject.FindGameObjectWithTag("GPS");
+        _service = GameObject.FindGameObjectWithTag("GPS");
 
         while (!Input.location.isEnabledByUser)
         {
@@ -86,8 +72,6 @@ public class TileManager : MonoBehaviour
         else
         {
             print("Location: " + Input.location.lastData.latitude + " " + Input.location.lastData.longitude + " " + Input.location.lastData.altitude + " " + Input.location.lastData.horizontalAccuracy + " " + Input.location.lastData.timestamp);
-            //service = GameObject.FindGameObjectWithTag("GPS");
-            //service.SetActive(false);
         }
 
         lat = Input.location.lastData.latitude;
@@ -114,89 +98,60 @@ public class TileManager : MonoBehaviour
         lon = Input.location.lastData.longitude;
 
         //上の方を使って
-        //string url = String.Format("https://api.mapbox.com/v4/mapbox.{5}/{0},{1},{2}/{3}x{3}@2x.png?access_token={4}", lon, lat, zoom, size, key, style);
-        string url = String.Format("https://api.mapbox.com/v4/mapbox.streets/136.886168,35.172531,17/512x512@2x.png?access_token=pk.eyJ1IjoidmFsbG9yZCIsImEiOiJjaXNzOHVhaDQwMDV6MnRwYnd5dGd5Zm5kIn0.bMZCMLBnstk67ErNPPyIaQ");
+        string url = String.Format("https://api.mapbox.com/v4/mapbox.{5}/{0},{1},{2}/{3}x{3}@2x.png?access_token={4}", lon, lat, zoom, size, key, style);
+        //string url = String.Format("https://api.mapbox.com/v4/mapbox.streets/136.886168,35.172531,17/512x512@2x.png?access_token=pk.eyJ1IjoidmFsbG9yZCIsImEiOiJjaXNzOHVhaDQwMDV6MnRwYnd5dGd5Zm5kIn0.bMZCMLBnstk67ErNPPyIaQ");
 
         WWW www = new WWW(url);
         yield return www;
 
-        texture = www.texture;
+        _texture = www.texture;
 
-        if (tile == null)
+        if (_tile == null)
         {
-            tile = GameObject.CreatePrimitive(PrimitiveType.Plane);
-            tile.name = "Tile " + lat + "" + lon;
-            tile.transform.localScale = Vector3.one * _settings.scale;
-            tile.GetComponent<Renderer>().material = _settings.material;
-            tile.transform.parent = transform;
+            _tile = GameObject.CreatePrimitive(PrimitiveType.Plane);
+            _tile.name = "Tile " + lat + "" + lon;
+            _tile.transform.localScale = Vector3.one * _settings.scale;
+            _tile.GetComponent<Renderer>().material = _settings.material;
+            _tile.transform.parent = transform;
         }
 
         //----------------------------------------------------------------------------------------------
-        //if(oldLat != 0 && oldLon != 0)
-        //{
-            //float x,y;
+        if (oldLat != 0 && oldLon != 0)
+        {
+            float x, y;
 
-            //Vector3 position = Vector3.zero;
-            //objPosition = new Vector3(1.378211f, 0.5f,103.850701f);
+            Vector3 position = Vector3.zero;
 
-            //geodeticOffsetInv(lat * Mathf.Deg2Rad, lon * Mathf.Deg2Rad, oldLat * Mathf.Deg2Rad, oldLon * Mathf.Deg2Rad, out x, out y);
-            
-            //if ((oldLat - lat) < 0 && (oldLon - lon) > 0 || (oldLat - lat) > 0 && (oldLon - lon) < 0)
-            //{
-                //position = new Vector3(x, 0.5f, y);
-                //objPosition = new Vector3(x, 0.5f, y);
-            //}
-            //else {
-                //position = new Vector3(-x, 0.5f, -y);
-                //objPosition = new Vector3(-x, 0.5f, -y);
-            //}
+            geodeticOffsetInv(lat * Mathf.Deg2Rad, lon * Mathf.Deg2Rad, oldLat * Mathf.Deg2Rad, oldLon * Mathf.Deg2Rad, out x, out y);
 
-            //position.x *= 0.300122f;
-            //position.z *= 0.123043f;
-                
-            //target.position = position;
+            if ((oldLat - lat) < 0 && (oldLon - lon) > 0 || (oldLat - lat) > 0 && (oldLon - lon) < 0)
+            {
+                position = new Vector3(x, 0.5f, y);
+            }
+            else {
+                position = new Vector3(-x, 0.5f, -y);
+            }
 
-            //for (int i = 0; i < objs.Count; i++)
-            //{
-            //    objs.Add(objs[i].Init(lat,lon,0));
-            //}
+            position.x *= 0.300122f;
+            position.z *= 0.123043f;
 
-                //objPosition.x *= 0.300122f;
-                //objPosition.z *= 0.123043f;
+            _target.position = position;
 
-                //objects.position = objPosition;
+        }
+           
 
-          
-
-        //}
-        //------------------------------------------------------------------------
-        //・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・
-        //●ObjectManagerのクラス使わず、オブジェクトをここに生成する
-        //●ObjectManagerに作る関数を作って、ここに呼び出す
-        //・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・
-        //●新しいLatとLonをオブジェクトのポジションのため、作る
-        //●最初にmonoでやって、できたら配列に変える
-        //●新しいポジションも配列にしたければいけない、それか前考えたようにUnityで追加したり設定したりする
-        //・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・
-
-        //ここにオブジェクトを生成してみ
-
-        //objManager.UpdateObjectPosition();
-
-        //------------------------------------------------------------------------
-
-        tile.GetComponent<Renderer>().material.mainTexture = texture;
+        _tile.GetComponent<Renderer>().material.mainTexture = _texture;
 
         yield return new WaitForSeconds(1f);
-        //oldLat = lat;
-        //oldLon = lon;
+        oldLat = lat;
+        oldLon = lon;
 
-        //while (oldLat == lat && oldLon == lon)
-        //{
-        //    lat = Input.location.lastData.latitude;
-        //    lon = Input.location.lastData.longitude;
-        //    yield return new WaitForSeconds(0.5f);
-        //}
+        while (oldLat == lat && oldLon == lon)
+        {
+            lat = Input.location.lastData.latitude;
+            lon = Input.location.lastData.longitude;
+            yield return new WaitForSeconds(0.5f);
+        }
 
         //------------------------------------------------------------------------
 
@@ -205,10 +160,10 @@ public class TileManager : MonoBehaviour
         yield return StartCoroutine(loadTiles(_settings.zoom));
         yield break;
     }
-    
+
     float GD_semiMajorAxis = 6378137.000000f;
-    float GD_TranMercB     = 6356752.314245f;
-    float GD_geocentF      = 0.003352810664f;
+    float GD_TranMercB = 6356752.314245f;
+    float GD_geocentF = 0.003352810664f;
 
     void geodeticOffsetInv(float refLat, float refLon,
         float lat, float lon,
@@ -286,8 +241,8 @@ public class TileManager : MonoBehaviour
 
     void Update()
     {
-        service.SetActive(!Input.location.isEnabledByUser);
-        target.position = Vector3.Lerp(target.position, new Vector3(0, 0.25f, 0), 2.0f * Time.deltaTime);
+        _service.SetActive(!Input.location.isEnabledByUser);
+        _target.position = Vector3.Lerp(_target.position, new Vector3(0, 0.25f, 0), 2.0f * Time.deltaTime);
     }
 
     [Serializable]
@@ -310,33 +265,4 @@ public class TileManager : MonoBehaviour
         [SerializeField]
         public string style = "dark";
     }
-
-    //[Serializable]
-    //public class Objects
-    //{
-    //    public enum ObjectType
-    //    {
-    //        CASTLE,
-    //        AR_SPOT
-    //    }
-
-    //    [SerializeField]
-    //    public Vector3 _objectPosition;
-    //    [SerializeField]
-    //    public Transform _obj;
-    //    [SerializeField]
-    //    public ObjectType _type;
-
-    //    public Objects Init(float lat, float lon, ObjectType type)
-    //    {
-    //        _objectPosition = new Vector3(lat, 0.5f, lon);
-    //        _type = type;
-
-    //        _obj.position = _objectPosition;
-
-    //        return this;
-    //    }
-
-    //}
-
 }
