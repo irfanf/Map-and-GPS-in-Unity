@@ -36,7 +36,7 @@ public class TileManager : MonoBehaviour
     void Awake()
     {
         //これ、本当はいらない！
-        StartCoroutine(loadTiles(_settings.zoom));
+        //StartCoroutine(loadTiles(_settings.zoom));
     }
 
     IEnumerator Start()
